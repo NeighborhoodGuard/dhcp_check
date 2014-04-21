@@ -68,6 +68,7 @@ echo
 echo "Starting dhcp_check"
 date
 echo 
+PATH=/sbin:/bin
 
 # Check to see if there is a lock file
 if [ -e $lockfile ]; then
