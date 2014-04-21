@@ -1,0 +1,117 @@
+#!/bin/bash
+##################################################################
+# Title:     dhcpd_check
+# Copyright (C) 2014 Neighborhood Guard, Inc. All rights reserved
+# Author:    Jesper Jurcenoks, Neighborhood Guard
+#
+# dhcp_check is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# dhcp_check is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+# 
+# You should have received a copy of the GNU Affero General Public License
+# along with CommunityView.  If not, see <http://www.gnu.org/licenses/>.
+#
+################################################################################
+# 
+#
+# Inspired by: WiFi_Check - A Project of TNET Services, Inc
+#            Author:    Kevin Reed (Dweeber) (MIT License)
+#                       dweeber.dweebs@gmail.com
+#            Project:   Raspberry Pi Stuff
+#                       https://github.com/dweeber/WiFi_Check
+#
+# Purpose:
+#
+# if eth0 is not connected or it is connected to a device that
+# has not powered on its ethernet interface, then isc-dhcp-server
+# will fail to start. This means dhcp-clients attached to the
+# Raspberry being unable to obtain an IP address via dhcp
+#
+# This script checks to see if dhcp is running and if not
+# restart dhcp then toggle eth0 to force attached devices to
+# renew their dhcp lease
+#
+# Uses a lock file which prevents the script from running more
+# than one at a time.  If lockfile is old, it removes it
+#
+# Instructions:
+#
+# o Install where you want to run it from like /usr/local/bin
+# o chmod 0755 /usr/local/bin/dhcp_check
+# o Add to crontab
+#
+# Run Every 5 mins - Seems like overkill in reality running it once
+# a few minutes after reboot should be enough - 
+# might reduce that in the future after live testing
+# Note sudo must be used on raspbian to execute in /usr/local/bin
+#
+# */5 * * * * sudo /usr/local/bin/dhcpd_check 
+# 
+# to Run the job 2 minutes after reboot the crontab needs to look like this
+# 
+# @reboot sleep 120 && sudo /usr/local/bin/dhcp_check
+#
+##################################################################
+# Settings
+# Where and what you want to call the Lockfile
+lockfile='/var/run/dhcpd_check.pid'
+# Which Interface do you want to toogle once dhcp is started
+eth='eth0'
+##################################################################
+echo
+echo "Starting dhcp_check"
+date
+echo 
+
+# Check to see if there is a lock file
+if [ -e $lockfile ]; then
+    # A lockfile exists... Lets check to see if it is still valid
+    pid=`cat $lockfile`
+    if kill -0 &>1 > /dev/null $pid; then
+        # Still Valid... lets let it be...
+        #echo "Process still running, Lockfile valid"
+        exit 1
+    else
+        # Old Lockfile, Remove it
+        #echo "Old lockfile, Removing Lockfile"
+        rm $lockfile
+    fi
+fi
+# If we get here, set a lock file using our current PID#
+#echo "Setting Lockfile"
+echo $$ > $lockfile
+
+# We can perform check
+echo "Performing service running check for dhcp"
+if ps -A  | grep -q "dhcpd" ; then
+    echo "dhcpd is Running"
+else
+    echo "dhcpd not running"
+    echo "attempting restart of dhcd"
+    service isc-dhcp-server start
+    echo "taking eth0 down and up to force dhcpclient to retry getting an ip address"
+    ifdown $eth
+    sleep 5
+    ifup --force $eth
+    ifconfig $eth | grep "inet addr"
+fi
+
+echo 
+echo "Current Setting:"
+ifconfig $eth | grep "inet addr:"
+echo
+ 
+# Check is complete, Remove Lock file and exit
+#echo "process is complete, removing lockfile"
+rm $lockfile
+exit 0
+
+##################################################################
+# End of Script
+##################################################################
