@@ -3,6 +3,7 @@
 # Title:     dhcpd_check
 # Copyright (C) 2014 Neighborhood Guard, Inc. All rights reserved
 # Author:    Jesper Jurcenoks, Neighborhood Guard
+# Version:   1.0
 #
 # dhcp_check is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
