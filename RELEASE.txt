@@ -1,6 +1,0 @@
-# Release Notes for dhcp_check
-
-## v1.0 - 2014/04/22
-_Jesper Jurcenoks_
-
-* inital version to be included in the neighborhood Repo
