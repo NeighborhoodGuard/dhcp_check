@@ -4,16 +4,16 @@
 
 dhcp_check is part of a software suite from [Neighborhood Guard](http://neighborhoodguard.org) to upload images from IP cameras and organize them into Web pages for easy access and review.
 
-dhcp_check is a script intended run on a Raspberry Pi that servers an IP camera.  The camera get its IP address from the Raspberry Pi dhcp server.  If the Raspberry Pi comes online before the Camera on a direct connection setup (no hub or switch) then the isc-dhcp-server on the raspberry will fail to start as the ethernet is seen as down.
+dhcp_check is a script intended run on a Raspberry Pi that serves an IP camera.  The camera get its IP address from the Raspberry Pi dhcp server.  If the Raspberry Pi comes online before the Camera on a direct connection setup (no hub or switch) then the isc-dhcp-server on the raspberry will fail to start as the ethernet is seen as down.
 
-this script will check to see if the dhcp daemon is not running at start it as needed. After starting the dhcpd, the script will toggle the eth port down and up to force a renew of the dhcp lease by the Ip camera
+This script will check to see if the dhcp daemon is not running at start it as needed. After starting the dhcpd, the script will toggle the eth port down and up to force a renew of the dhcp lease by the Ip camera
 
 
 ###Installation and Configuration###
 
 Download dhcp_check to /usr/local/bin
 
-sudo wget https://raw.github.com/JesperJurcenoks/dhcp_check/master/dhcp_check -O /usr/local/bin/dhcp_check
+sudo wget https://raw.github.com/NeighborhoodGuard/dhcp_check/master/dhcp_check -O /usr/local/bin/dhcp_check
 
 Give dhcp_check execute rights 
 
